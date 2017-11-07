@@ -24,8 +24,7 @@ public class Server {
 
     public void connection() {
         System.out.println("Waiting for client ...");
-        try
-        {
+        try {
             Socket socket = server.accept();
             Socket socket1 = server.accept();
             System.out.println("Client accepted: " + socket + "\n" + socket1);
@@ -45,19 +44,23 @@ public class Server {
                 @Override
                 public void run() {
                     boolean done = false;
-                    while (!done)
-                    {
-                        try
-                        {
-                            Byte line = dis.readByte();
-                            System.out.println("From first: " + line);
-                            done = line.equals("bye");
+                    while (!done) {
+                        try {
+                            //Byte line = dis.readByte();
+                            int length = dis.readInt();
+                            byte[] message;
+                            if (length > 0) {
+                                message = new byte[length];
+                                dis.readFully(message, 0, message.length);
 
-                            dos.writeByte(line);
-                            dos.flush();
-                        }
-                        catch(IOException ioe)
-                        {
+                                dos.writeInt(message.length);
+                                dos.write(message);
+                                dos.flush();
+                            }
+                            //System.out.println("From first: " + line);
+                            //done = line.equals("bye");
+
+                        } catch (IOException ioe) {
                             done = true;
                         }
                     }
@@ -75,19 +78,25 @@ public class Server {
                 @Override
                 public void run() {
                     boolean done = false;
-                    while (!done)
-                    {
-                        try
-                        {
-                            Byte line = dis1.readByte();
-                            System.out.println("From second: " + line);
-                            done = line.equals("bye");
+                    while (!done) {
+                        try {
+                            //Byte line = dis1.readByte();
+                            //System.out.println("From second: " + line);
+                            //done = line.equals("bye");
+                            int length = dis1.readInt();
+                            byte[] message;
+                            if(length > 0){
+                                message = new byte[length];
+                                dis1.readFully(message, 0, message.length);
 
-                            dos1.writeByte(line);
-                            dos1.flush();
-                        }
-                        catch(IOException ioe)
-                        {
+                                dos1.writeInt(message.length);
+                                dos1.write(message);
+                                dos1.flush();
+                            }
+
+//                            dos1.writeByte(line);
+//                            dos1.flush();
+                        } catch (IOException ioe) {
                             done = true;
                         }
                     }
@@ -104,9 +113,7 @@ public class Server {
             thread.start();
             secondThread.start();
 
-        }
-        catch(IOException ioe)
-        {
+        } catch (IOException ioe) {
             System.out.println(ioe);
         }
 

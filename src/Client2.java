@@ -2,6 +2,7 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Scanner;
 
 /**
  * Created by ekaterina on 11/4/17.
@@ -29,10 +30,18 @@ public class Client2 {
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    while(true){
+                    while (true) {
                         try {
-                            Byte line = socketInput.readByte();
-                            System.out.println("From Server: " + line.toString());
+                            int length = socketInput.readInt();
+                            if (length > 0) {
+                                byte[] message = new byte[length];
+                                socketInput.readFully(message, 0, message.length);
+                                for (int i = 0; i < length; i++) {
+                                    System.out.println("Input: " + message[i]);
+                                }
+                            }
+                            //Byte line = socketInput.readByte();
+                            //System.out.println("From Server: " + line.toString());
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -41,24 +50,24 @@ public class Client2 {
             });
             thread.start();
 
-            String line = "";
-            while (!line.equals("bye"))
-            {
-                try
-                {
-                    line = dis.readLine();
+            Scanner scanner = new Scanner(System.in);
+            byte[] outMessage = {10, 12, 14, 123, -14};
 
-                    dos.writeUTF(line);
-                    dos.flush();
-                }
-                catch(IOException ioe)
-                {
-                    System.out.println("Sending error: " + ioe.getMessage());
+            while (true) {
+                String userLine = scanner.nextLine();
+                if (userLine.equals("send")) {
+                    try {
+                        //line = dis.readLine();
+
+                        dos.writeInt(outMessage.length);
+                        dos.write(outMessage);
+                        dos.flush();
+                    } catch (IOException ioe) {
+                        System.out.println("Sending error: " + ioe.getMessage());
+                    }
                 }
             }
 
-            dis.close();
-            dos.close();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
